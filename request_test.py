@@ -10,4 +10,4 @@ from PIL import Image
 from io import BytesIO
 response = req.get(img_src)
 image = Image.open(BytesIO(response.content))
-image.show()
+image.save("ttttrequest.jpg")

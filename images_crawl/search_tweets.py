@@ -13,6 +13,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
 from urllib import request
+from PIL import Image
+from io import BytesIO
+import requests
 
 # https://twitter.com/search?q=191222%20since%3A2019-01-01%20until%3A2019-01-02&src=typd
 # https://twitter.com/search?q=191222%20until%3A2019-01-02%20since%3A2019-01-01&src=typed_query
@@ -65,7 +68,7 @@ def scrape_tweets(driver):
         tweet_divs = driver.page_source
         obj = BeautifulSoup(tweet_divs, "html.parser")
         content = obj.find_all("div", class_="content")
-        print(content)
+        # print(content)
 
         print("content printed")
         print(len(content))
@@ -96,29 +99,11 @@ def scrape_tweets(driver):
 
                     # request image url
                     print("img url:", src+":large")
-                    # req = request.Request(src+":large", headers={
-                    #     "authority": "pbs.twimg.com",
-                    #     "method": "GET",
-                    #     "path":"/media/EMZQzy6UwAEnZZ8.jpg:large",
-                    #     "scheme": "https",
-                    #     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                    #     "accept-encoding": "gzip, deflate, br",
-                    #     "accept-language": "zh-CN,zh;q=0.9",
-                    #     "cache-control": "no-cache",
-                    #     "pragma": "no-cache",
-                    #     "sec-fetch-mode": "navigate",
-                    #     "sec-fetch-site": "none",
-                    #     "sec-fetch-user": "?1",
-                    #     "upgrade-insecure-requests": "1",
-                    #     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-                    # })
-                    # data = request.urlopen(req, timeout=30).read()
-                    # f = open(img_name, 'wb')
-                    # f.write(data)
-                    # f.close()
-
-                    # request by driver
-                    img_response = driver.get(src+":large")
+                    response = requests.get(src+":large")
+                    image = Image.open(BytesIO(response.content))
+                    image.save(img_name)
+                    print("save image:", img_name)
+                    
             else:
                 print("no photo")
             # try:
@@ -193,61 +178,9 @@ def main():
     write_csv_header()
 
     driver = init_driver(driver_type)
-
-    driver.get("https://pbs.twimg.com/media/EMZQzy6UwAEnZZ8.jpg:large")
-    js_script = '''window.downloadImageToBase64 = function (url) {
-    // Put these constants out of the function to avoid creation of objects.
-    var STATE_DONE = 4;
-    var HTTP_OK = 200;
-    var xhr = new XMLHttpRequest();
-
-    function stateChange() {
-        // Wait for valid response
-        if (xhr.readyState == STATE_DONE && xhr.status == HTTP_OK) {
-            var blob = new Blob([xhr.response], {
-                type: xhr.getResponseHeader("Content-Type")
-            });
-            // Create file reader and convert blob array to Base64 string
-            var reader = new window.FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = function () {
-                var base64data = reader.result;
-                console.log(base64data);
-            }
-
-        }
-    };
-   //  xhr.responseType = "arraybuffer";
-    // Load async
-    xhr.open("GET", url, false); // sync request
-    xhr.send(null);
-
-    //console.log(xhr.readyState)
-    //console.log(xhr.status)
-    // stateChange();
-    //console.log(xhr.response)
-   if (xhr.status == HTTP_OK && xhr.readyState==STATE_DONE)
-   {
-       return xhr.response;
-   }
-   else{
-       return "-1";
-   }
-};'''
-    driver.execute_script(js_script)
-    bdata = driver.execute_script('return window.downloadImageToBase64("https://pbs.twimg.com/media/EMZQzy6UwAEnZZ8.jpg:large");')
-    # print(bdata.encode('unicode'))
-    import base64
-    bdata = bytearray(bdata, 'utf-16')
-    # base64.b64decode(data)
-    # print(bdata)
-    with open("bdata.jpg", "wb") as f:
-        f.write(bdata)
-        f.close()
-
-    # scroll(driver, start_date, end_date, wordsToSearch, lang, account=account)
-    # scrape_tweets(driver)
-    # time.sleep(5)
+    scroll(driver, start_date, end_date, wordsToSearch, lang, account=account)
+    scrape_tweets(driver)
+    time.sleep(5)
     print("finish!")
     driver.quit()
 

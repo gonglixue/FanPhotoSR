@@ -24,6 +24,7 @@ class DriverManager(object):
         self.save_root = config["save_root"]
         self.timeout = config["timeout"] # s
         self.log_file = log_file
+        self.scroll_try_max = 5
 
     @staticmethod
     def construct_url(account, start_time, end_time):
@@ -51,12 +52,12 @@ class DriverManager(object):
             total_counts += query_images_count
 
             print("------------------- {}".format(query_images_count))
-            self.log_file.write("   {} - {}: {}\n".format(query_start, query_end,query_images_count))
+            self.log_file.write("   {} - {}, {}\n".format(query_start, query_end,query_images_count))
 
         print("\n\n\n Finish")
         print(total_counts)
-        self.log_file.write("[{}]: {} images\n".format(self.account, total_counts))
-        self.log_file.write("---------------------------------------------------\n\n\n")
+        self.log_file.write("[{}] total, {}\n".format(self.account, total_counts))
+        self.log_file.write("\n\n\n")
         
         time.sleep(8)
         self.driver.quit()
@@ -70,7 +71,7 @@ class DriverManager(object):
             obj = BeautifulSoup(tweets_divs, "html.parser")
             content = obj.find_all("div", class_='content')
             print("------{} tweets are found".format(len(content)))
-            self.log_file.write("   {} tweets found\n".format(len(content)))
+            # self.log_file.write("   {} tweets found\n".format(len(content)))
             for c in content:
                 datestring = str(c.find_all("span", class_="_timestamp")[0])
                 datestring = datestring[datestring.index("data-time")+11:]
@@ -115,15 +116,27 @@ class DriverManager(object):
         # scroll until load all data
         while (time.time() - start_time) < self.timeout:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(4)
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(4)
+            # time.sleep(3)
+            # self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight-1000);")
+            # time.sleep(2)
+            # self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # time.sleep(5)
 
             current_scroll_height = self.driver.execute_script("return document.body.scrollHeight;")
             if current_scroll_height == last_scorll_height:
-                print("------scroll to bottom")
-                break
+                # try scroll back and forth
+                for si in range(self.scroll_try_max):
+                    self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight-1000);")
+                    time.sleep(3)
+                    self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    time.sleep(3)
+                    current_scroll_height = self.driver.execute_script("return document.body.scrollHeight;")
+
+                if current_scroll_height == last_scorll_height:
+                    print("------scroll to bottom after {} try".format(self.scroll_try_max))
+                    break
             last_scorll_height = current_scroll_height
+
         if (time.time() - start_time) > self.timeout:
             print("------scroll timeout")
 

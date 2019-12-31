@@ -2,3 +2,6 @@
 *.exe
 *.jpg
 *.pyc
+*.png
+.vscode/
+*_log.txt

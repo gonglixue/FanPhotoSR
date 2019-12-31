@@ -58,6 +58,7 @@ class DriverManager(object):
         print(total_counts)
         self.log_file.write("[{}] total, {}\n".format(self.account, total_counts))
         self.log_file.write("\n\n\n")
+        self.log_file.flush()
         
         time.sleep(8)
         self.driver.quit()

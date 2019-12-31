@@ -1,3 +1,5 @@
 *.csv
 *.exe
 *.jpg
+*.png
+.vscode/

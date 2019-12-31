@@ -1,14 +1,14 @@
 import os
 from DriverManager import TwitterImageCrawler
 
-f = open("twitter_address_test.txt", "r")
+f = open("twitter_address.txt", "r")
 all_account = [line.strip() for line in f]
 
 config = {
-    "driver_path": "F:\gonglixue\PersonalFiles\WJ\FanPhotoSR\images_crawl\chromedriver.exe",
+    "driver_path": "F:\PycharmProject\FanPhotoSR\images_crawl\chromedriver.exe",
     "account":None,
-    "start_time": "2019-04-01",
-    "end_time": "2019-04-30",
+    "start_time": "2019-01-01",
+    "end_time": "2019-12-31",
     "save_root": "2019photo",
     "timeout": 600
 }

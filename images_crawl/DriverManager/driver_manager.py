@@ -69,7 +69,7 @@ class DriverManager(object):
         self.log_file.write("\n\n\n")
         self.log_file.flush()
         
-        time.sleep(8)
+        time.sleep(4)
         self.driver.quit()
         return total_counts
             
@@ -148,7 +148,7 @@ class DriverManager(object):
                 # try scroll back and forth
                 for si in range(self.scroll_try_max):
                     self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight-1000);")
-                    time.sleep(3)
+                    time.sleep(1)
                     self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                     time.sleep(3)
                     current_scroll_height = self.driver.execute_script("return document.body.scrollHeight;")

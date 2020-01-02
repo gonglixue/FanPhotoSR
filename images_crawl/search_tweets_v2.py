@@ -8,8 +8,8 @@ all_account = [line.strip() for line in f]
 config = {
     "driver_path": "F:\PycharmProject\FanPhotoSR\images_crawl\chromedriver.exe",
     "account":None,
-    "start_time": "2019-01-01",
-    "end_time": "2019-12-31",
+    "start_time": "2019-12-31",
+    "end_time": "2020-01-02",
     "save_root": "2019photo2",
     "timeout": 600
 }
@@ -27,7 +27,7 @@ def resume_status(status_log):
     
 
 if __name__ == "__main__":
-    mode = "scratch" # "resume"
+    mode = "resume" # "resume"
     resume_account, resume_date = "", ""
 
     # init folder
@@ -56,7 +56,7 @@ if __name__ == "__main__":
             if acc == resume_account:
                 break
             begin_ind += 1
-    all_account = all_account[begin_ind: -1]
+    all_account = all_account[begin_ind: ]
     print("search {} accounts: ".format(len(all_account)))
     print(all_account)
 
